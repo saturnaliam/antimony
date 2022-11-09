@@ -1,37 +1,51 @@
 #include <cstring>
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <direct.h>
-#include <vector>
-#include "include\filepaths.h"
 
-void create_paths(std::vector<Filepath> paths) {
-    for(Filepath path : paths) {
-        // Stores the path's name.
-        char* path_name = &path.name[0];
+void output_error(const std::string &message) {
+    //std::cerr << "Error: " << message << std::endl;
+}
 
-        // Generates the subpath.
-        if (mkdir('\\' + path_name) == -1) {
-            std::cerr << "Error: " << strerror(errno) << std::endl;
-        }
+// fuck DRY
+void create_folders() {
+    if (mkdir("src") == -1) {
+        output_error(strerror(errno));
+    }
 
-        for(Filepath subpath : path.subpaths) {
-            char* subpath_name = &subpath.name[0];
+    if (mkdir("src\\include") == -1) {
+        output_error(strerror(errno));
+    }
 
-            if (mkdir('\\' + subpath_name) == -1) {
-                std::cerr << "Errorr: " << strerror(errno) << std::endl;
-            }
-        }
+    if (mkdir("src\\lib") == -1) {
+        output_error(strerror(errno));
+    }
+
+    if (mkdir("bin") == -1) {
+        output_error(strerror(errno));
+    }
+
+    if (mkdir("bin\\debug") == -1) {
+        output_error(strerror(errno));
+    }
+
+    if (mkdir("bin\\target") == -1) {
+        output_error(strerror(errno));
     }
 }
 
 int main() {
-    if(mkdir("\\FDSAD") == -1) {
-        std::cerr << "Error: " << strerror(errno) << std::endl;
-    }
-    std::ofstream MainFile("src\\d.cpp");
+    create_folders();
+    std::ofstream MainFile("src\\main.cpp");
 
-    MainFile << "dsfa";
+    MainFile << "#include <iostream>" << std::endl << std::endl << "int main() {" << std::endl << "    std::cout << \"Hello, World!\";" << std::endl << "}";
 
     MainFile.close();
+
+    std::ofstream Makefile("Makefile");
+
+    Makefile << "make:" << std::endl << "  g++ -c src\\main.cpp" << std::endl << "  g++ -o bin\\debug\\main main.o" << std::endl << "  del /f main.o" << std::endl << "  .\\bin\\debug\\main";
+
+    Makefile.close();
 }
